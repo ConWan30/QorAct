@@ -1,0 +1,10 @@
+{
+  "schema_version": "observation-journal-1",
+  "session_id": "session",
+  "record": {
+    "envelope_schema": "qoresence.observation-envelope.v0",
+    "input_availability": "not_on_this_host",
+    "clip": {"status": "not_requested"}
+  },
+  "_source": "Qoresence tests/fixtures/observation_replay_session.jsonl line 1. Wrong schema on purpose."
+}
