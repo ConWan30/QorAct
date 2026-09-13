@@ -104,6 +104,37 @@ def issue_from_recap(
         )
 
 
+def _load_actuator_log(path: Path) -> list[dict[str, Any]] | None:
+    try:
+        raw = _load_json(path)
+    except Exception:
+        return None
+    if isinstance(raw, list):
+        return [row for row in raw if isinstance(row, dict)]
+    if isinstance(raw, dict) and isinstance(raw.get("spans"), list):
+        return [row for row in raw["spans"] if isinstance(row, dict)]
+    return None
+
+
+def discover_actuator_sidecar(
+    recap_path: str | Path,
+    payload: Any = None,
+) -> Path | None:
+    """Optional sidecar beside the Recap. Missing file is not a span."""
+    recap = Path(recap_path)
+    parent = recap.parent
+    candidates = [parent / f"{recap.stem}.actuators.json"]
+    session = _session_id(payload) if isinstance(payload, dict) else None
+    if session:
+        name = f"qact_actuators_{session}.json"
+        candidates.append(parent / name)
+        candidates.append(parent / "audits" / name)
+    for cand in candidates:
+        if cand.is_file():
+            return cand
+    return None
+
+
 def issue_from_recap_path(
     recap_path: str | Path,
     *,
@@ -119,19 +150,21 @@ def issue_from_recap_path(
             session_id=None,
             hygiene_note=f"recap unreadable: {type(exc).__name__}",
         )
+        rec.honesty["sidecar_used"] = False
         _maybe_write(out_path, rec)
         return rec
-    log: list[dict[str, Any]] | None = None
+    sidecar: Path | None = None
     if actuator_log_path is not None:
-        try:
-            raw = _load_json(actuator_log_path)
-            if isinstance(raw, list):
-                log = [row for row in raw if isinstance(row, dict)]
-            elif isinstance(raw, dict) and isinstance(raw.get("spans"), list):
-                log = [row for row in raw["spans"] if isinstance(row, dict)]
-        except Exception:
-            log = None
+        sidecar = Path(actuator_log_path)
+    else:
+        sidecar = discover_actuator_sidecar(recap_path, payload)
+    log: list[dict[str, Any]] | None = None
+    sidecar_used = False
+    if sidecar is not None and sidecar.is_file():
+        sidecar_used = True
+        log = _load_actuator_log(sidecar)
     rec = issue_from_recap(payload, media_actuator_log=log, **kwargs)
+    rec.honesty["sidecar_used"] = sidecar_used
     _maybe_write(out_path, rec)
     return rec
 
@@ -159,4 +192,5 @@ def recap_door_health(rec: QorActRecord) -> dict[str, Any]:
         "issued": rec.schema == SCHEMA,
         "fail_open": True,
         "humanity_claim": False,
+        "sidecar_used": bool(rec.honesty.get("sidecar_used")),
     }

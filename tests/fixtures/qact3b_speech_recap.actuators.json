@@ -1,0 +1,10 @@
+[
+  {
+    "kind": "speech",
+    "commit": true,
+    "path": "confirm",
+    "source": "clutchbot",
+    "ticket_id": "tick-3b-1",
+    "text": "Score update: 21-3."
+  }
+]
