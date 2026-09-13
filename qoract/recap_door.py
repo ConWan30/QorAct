@@ -319,19 +319,6 @@ def issue_from_recap_path(
     if any(r.endswith("not found") or r.endswith("unreadable") for r in door.reasons):
         note = "recap unreadable: OSError"
     elif any(r.endswith("invalid json") for r in door.reasons):
-        note = "recap payload is not an object" if False else (
-            "recap unreadable: JSONDecodeError" if any(r.endswith("invalid json") for r in door.reasons) else (
-                "recap payload is not an object" if any(r.endswith("not an object") for r in door.reasons) else joined
-            )
-        )
-    elif any(r.endswith("not an object") for r in door.reasons):
-        note = "recap payload is not an object"
-    else:
-        note = joined
-    # Fix the botched ternary above - use clean logic matching local file
-    if any(r.endswith("not found") or r.endswith("unreadable") for r in door.reasons):
-        note = "recap unreadable: OSError"
-    elif any(r.endswith("invalid json") for r in door.reasons):
         note = "recap unreadable: JSONDecodeError"
     elif any(r.endswith("not an object") for r in door.reasons):
         note = "recap payload is not an object"
