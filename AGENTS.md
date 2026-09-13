@@ -4,7 +4,7 @@ You are building the **authorship plane**, not truth and not observation.
 
 ## Job
 
-Keep `build_qoract` / `verify_qoract` honest. Reference-and-bind only.
+Keep `build_qoract` / `verify_qoract` / `issue_from_recap` honest. Reference-and-bind only. Recap door is fail-open and must not join the grab loop.
 
 ## Plane lock
 
@@ -41,8 +41,8 @@ Media v0 kinds: `pixels` | `speech`
 ## Grok Build
 
 ```text
-cd QorAct
-grok -p "Run python -m unittest tests/test_qoract.py and stop if red."
+cd C:\Users\Contr\QorAct
+grok -p "Run python -m unittest discover -s tests -p test_*.py and stop if red."
 ```
 
 Do not expand kinds to edit/publish/narrative without a new Decision block from Con.

@@ -15,10 +15,9 @@ QorAct answers one question about a session span:
 ## Verify
 
 ```powershell
-git clone https://github.com/ConWan30/QorAct.git
-cd QorAct
-python -m unittest tests/test_qoract.py tests/test_recap_door.py
+cd C:\Users\Contr\QorAct
+python -m unittest discover -s tests -p "test_*.py"
 python scripts/issue_from_recap.py --recap path\to\session-recap.json --out qoract-draft.json
 ```
 
-A linked Foundry clip is not an authorship verdict. The Recap door is fail-open (exit 0) so a stop hook cannot take down capture. `live: false` on every candidate record.
+A linked Foundry clip is not an authorship verdict. The Recap door is fail-open. `live: false` on every candidate record.
