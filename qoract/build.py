@@ -241,7 +241,7 @@ def build_qoract(
             "producer_status_ignored": True,
             "kinds_v0": ["pixels", "speech"],
             "edit_publish_narrative": "undeployed",
-            "deployed_verified": [],
+            "deployed_verified": ["recap_door_reader"],
             "emulated": ["build_qoract offline"],
             "undeployed": [
                 "outcome.agent_actuator",

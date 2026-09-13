@@ -20,4 +20,4 @@ python -m unittest discover -s tests -p "test_*.py"
 python scripts/issue_from_recap.py --recap path\to\session-recap.json --out qoract-draft.json
 ```
 
-A linked Foundry clip is not an authorship verdict. The Recap door is fail-open. `live: false` on every candidate record.
+A linked Foundry clip is not an authorship verdict. The Recap door (`read_recap_door`) is fail-open on miss/bad JSON so verify never tracebacks. `scripts/issue_from_recap.py` stays exit 0 so a stop hook cannot take down capture. `live: false` on every candidate record.

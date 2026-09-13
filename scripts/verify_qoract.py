@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from qoract import build_qoract, verify_qoract
+from qoract import build_from_recap_door, read_recap_door, verify_qoract
 from qoract.record import QorActRecord, Verdict, Rollup, MediaKind, MediaSpan, OutcomeSurface
 
 
@@ -70,38 +70,56 @@ def main() -> int:
     p.add_argument("--build", action="store_true", help="build a draft from --recap and print it")
     args = p.parse_args()
 
+    door = None
     recap = None
     if args.recap:
-        recap = json.loads(Path(args.recap).read_text(encoding="utf-8"))
+        door = read_recap_door(args.recap)
+        recap = door.payload if door.ok else None
 
     if args.build:
-        if recap is None:
+        if not args.recap:
             print("need --recap to build", file=sys.stderr)
             return 2
-        rec = build_qoract(
-            session_id=(recap.get("session") or recap.get("session_id")),
-            recap_payload=recap,
-            signed_by=args.signed_by or None,
-        )
+        assert door is not None
+        rec = build_from_recap_door(args.recap, signed_by=args.signed_by or None)
         print(json.dumps(rec.to_dict(), indent=2))
         out = verify_qoract(rec, recap_payload=recap, expected_kas_commitment=args.kas)
-    else:
-        if not args.record:
-            print("need --record or --build --recap", file=sys.stderr)
-            return 2
-        raw = json.loads(Path(args.record).read_text(encoding="utf-8"))
-        rec = _record_from_dict(raw)
-        out = verify_qoract(
-            rec,
-            recap_payload=recap,
-            expected_kas_commitment=args.kas,
-            signed_by=args.signed_by or None,
-        )
+        reasons = list(door.reasons) + list(out["reasons"])
+        ok = door.ok and out["ok"]
+        print("VERIFY", "OK" if ok else "FAIL", file=sys.stderr)
+        for r in reasons:
+            print(" -", r, file=sys.stderr)
+        return 0 if ok else 1
 
-    print("VERIFY", "OK" if out["ok"] else "FAIL", file=sys.stderr)
-    for r in out["reasons"]:
+    if not args.record:
+        print("need --record or --build --recap", file=sys.stderr)
+        return 2
+
+    try:
+        raw = json.loads(Path(args.record).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        print("VERIFY FAIL", file=sys.stderr)
+        print(" -", f"record unreadable: {type(exc).__name__}", file=sys.stderr)
+        return 1
+
+    if not isinstance(raw, dict):
+        print("VERIFY FAIL", file=sys.stderr)
+        print(" - record is not an object", file=sys.stderr)
+        return 1
+
+    rec = _record_from_dict(raw)
+    out = verify_qoract(
+        rec,
+        recap_payload=recap,
+        expected_kas_commitment=args.kas,
+        signed_by=args.signed_by or None,
+    )
+    reasons = list(door.reasons) + list(out["reasons"]) if door is not None else list(out["reasons"])
+    ok = (door.ok if door is not None else True) and out["ok"]
+    print("VERIFY", "OK" if ok else "FAIL", file=sys.stderr)
+    for r in reasons:
         print(" -", r, file=sys.stderr)
-    return 0 if out["ok"] else 1
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":

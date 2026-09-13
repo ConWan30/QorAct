@@ -13,7 +13,14 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from qoract.reader import record_from_dict
-from qoract.recap_door import issue_from_recap, issue_from_recap_path, recap_door_health
+from qoract.recap_door import (
+    RecapDoorResult,
+    build_from_recap_door,
+    issue_from_recap,
+    issue_from_recap_path,
+    read_recap_door,
+    recap_door_health,
+)
 from qoract.record import Rollup, Verdict
 from qoract.verify import verify_qoract
 
@@ -36,6 +43,8 @@ RECAP = {
     ],
     "freshness": {"stale": False},
 }
+
+MINIMAL = {"schema": "session-recap-1", "session": "sess-min-1"}
 
 
 class TestRecapDoor(unittest.TestCase):
@@ -105,6 +114,45 @@ class TestRecapDoor(unittest.TestCase):
         assert rec is not None
         self.assertEqual(rec.rollup, Rollup.UNVERIFIABLE)
         self.assertEqual(rec.media, ())
+
+    def test_read_present_valid_minimal(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "min.json"
+            p.write_text(json.dumps(MINIMAL), encoding="utf-8")
+            door = read_recap_door(p)
+            self.assertIsInstance(door, RecapDoorResult)
+            self.assertTrue(door.ok)
+            self.assertIsInstance(door.payload, dict)
+            self.assertEqual(door.reasons, ())
+            self.assertIsNotNone(door.path)
+
+    def test_read_missing_path_fail_open(self) -> None:
+        door = read_recap_door(None)
+        self.assertFalse(door.ok)
+        self.assertIsNone(door.payload)
+        self.assertEqual(door.reasons, ("recap door miss: no path",))
+
+    def test_read_missing_file_fail_open(self) -> None:
+        door = read_recap_door("/no/such/qoract-recap-door.json")
+        self.assertFalse(door.ok)
+        self.assertIsNone(door.payload)
+        self.assertEqual(door.reasons, ("recap door miss: not found",))
+
+    def test_read_invalid_json_fail_open(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            p = Path(tmp) / "bad.json"
+            p.write_text("{not-json", encoding="utf-8")
+            door = read_recap_door(p)
+            self.assertFalse(door.ok)
+            self.assertIsNone(door.payload)
+            self.assertEqual(door.reasons, ("recap door miss: invalid json",))
+
+    def test_build_from_recap_door_on_miss(self) -> None:
+        rec = build_from_recap_door("/no/such/qoract-recap-door.json")
+        self.assertFalse(rec.live)
+        self.assertIn(rec.rollup, (Rollup.UNVERIFIABLE, Rollup.PARTIAL_SURFACES))
+        self.assertIn("recap door miss", rec.hygiene_note)
+        self.assertIn("recap_door_reader", rec.honesty.get("deployed_verified", []))
 
 
 if __name__ == "__main__":
