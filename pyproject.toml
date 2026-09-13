@@ -1,0 +1,14 @@
+[project]
+name = "qoract"
+version = "0.1.0"
+description = "QorAct — authorship-plane labeler. Reference-and-bind. No FROZEN primitive."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Contravious Battle" }]
+
+[project.optional-dependencies]
+dev = []
+
+[tool.setuptools.packages.find]
+include = ["qoract"]
