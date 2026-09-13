@@ -67,10 +67,11 @@ def issue_from_recap(
                 session_id=None,
                 hygiene_note="recap payload is not an object",
             )
-        schema = str(recap_payload.get("schema") or "")
+        schema = str(recap_payload.get("schema") or recap_payload.get("schema_version") or "")
         note = hygiene_note
-        if schema and schema != "session-recap-1":
-            note = (note + f" unexpected recap schema {schema}").strip()
+        if schema != "session-recap-1":
+            shown = schema or "missing"
+            note = (note + f" unexpected recap schema {shown}").strip()
         stems = _linked_stems(recap_payload)
         if stems and not media_actuator_log:
             note = (
