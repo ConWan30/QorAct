@@ -4,7 +4,7 @@
 
 QorAct answers one question about a session span:
 
-**Who made this act — the gamer, a bot, both, or we do not know?**
+**Who made this act â€” the gamer, a bot, both, or we do not know?**
 
 | Plane | Repo | Speaks |
 |---|---|---|
@@ -21,3 +21,13 @@ python scripts/issue_from_recap.py --recap path\to\session-recap.json --out qora
 ```
 
 A linked Foundry clip is not an authorship verdict. The Recap door is fail-open. `live: false` on every candidate record.
+
+## Glass (GitHub Pages)
+
+Static authorship plane UI (Aperture Sight Glass tokens). Fail-open Recap door + client verify. `live:false`.
+
+- Local: `cd glass && npm ci && npm run dev`
+- Build: `cd glass && npm run build` (output `glass/dist`, base `/QorAct/`)
+- Live: https://conwan30.github.io/QorAct/
+
+Deploy: GitHub Actions workflow `pages-glass.yml` on push to `main` (or `workflow_dispatch`). Repo Settings → Pages → Source: GitHub Actions.

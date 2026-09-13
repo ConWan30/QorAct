@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+/* Aperture Glass tokens — aligned with Qoresence Sight Glass / Pages (aperture.css).
+ * Flat void field, machined plates, iron hairlines. No scanlines, no bloom.
+ * Radii 2–12px. Motion one-shot. live:false chrome only.
+ */
+
+@theme {
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+
+  /* Surfaces — void well, machined plates */
+  --color-background: #05060a; /* void */
+  --color-foreground: #e8eaf2; /* star */
+  --color-card: #0b0d14; /* well */
+  --color-card-foreground: #e8eaf2;
+  --color-muted: #12151e; /* plate */
+  --color-muted-foreground: #8b90a0; /* iron */
+  --color-border: color-mix(in oklab, #8b90a0 22%, transparent);
+  --color-input: #12151e;
+  --color-ring: #9be7ff; /* aperture */
+  --color-primary: #9be7ff; /* aperture */
+  --color-primary-foreground: #05060a;
+  --color-secondary: #161924; /* raised plate */
+  --color-secondary-foreground: #e8eaf2;
+  --color-accent: #d7b36a; /* brass — path=fast */
+  --color-accent-foreground: #05060a;
+
+  /* Authorship tones (keep distinct; iron/aperture/brass family) */
+  --color-human: #e8eaf2;
+  --color-human-dim: color-mix(in oklab, #e8eaf2 12%, transparent);
+  --color-agent: #9be7ff;
+  --color-agent-dim: color-mix(in oklab, #9be7ff 14%, transparent);
+  --color-mixed: #d7b36a;
+  --color-mixed-dim: color-mix(in oklab, #d7b36a 14%, transparent);
+
+  /* Machined radii — not broadcast pills */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius: 8px;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-quick: 150ms;
+  --motion-fast: 250ms;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: clip;
+  }
+
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    font-family: var(--font-display);
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
