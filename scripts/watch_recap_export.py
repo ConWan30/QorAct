@@ -2,14 +2,19 @@
 """Poll Qoresence Recap over HTTP and issue a QorAct draft.
 
 Does not import qoresence. Does not join the grab loop.
-Optional --start-deck spawns `python -m qoresence --play --deck` as a
-sibling process (compose, not merge). Default-OFF extra flags stay off.
+Optional --start-deck spawns the Qoresence *venv* console script
+`qoresence --play --deck` (not `python -m qoresence`; there is no
+`__main__.py`). Default-OFF extra flags stay off. If Deck already
+answers Recap HTTP, spawn is skipped so DShow is not dual-opened.
+
+Fail-open: HTTP misses do not raise. Ctrl+C writes the last good snapshot.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import subprocess
 import sys
 import time
@@ -24,7 +29,7 @@ if str(ROOT) not in sys.path:
 from qoract.recap_door import issue_from_recap, recap_door_health
 
 
-def _get(url: str, timeout: float) -> dict | None:
+def _get(url: str, timeout: float):
     try:
         with urllib.request.urlopen(url, timeout=timeout) as resp:
             raw = resp.read().decode("utf-8")
@@ -39,11 +44,25 @@ def _write(path: Path, obj: dict) -> None:
     path.write_text(json.dumps(obj, indent=2) + "\n", encoding="utf-8")
 
 
-def _spawn_deck(qoresence_root: Path) -> subprocess.Popen | None:
+def _deck_cmd(qoresence_root: Path):
+    """Resolve the venv console script. Never `python -m qoresence`."""
+    script = shutil.which("qoresence")
+    if script:
+        return [script, "--play", "--deck"]
+    cli_py = qoresence_root / "qoresence" / "cli.py"
+    if cli_py.is_file():
+        return [sys.executable, str(cli_py), "--play", "--deck"]
+    return [sys.executable, "-m", "qoresence.cli", "--play", "--deck"]
+
+
+def _spawn_deck(qoresence_root: Path, recap_url: str, timeout: float):
+    if _get(recap_url, timeout) is not None:
+        print("Deck already answering Recap; skip spawn", recap_url, file=sys.stderr)
+        return None
     if not qoresence_root.is_dir():
         print("no qoresence root", qoresence_root, file=sys.stderr)
         return None
-    cmd = [sys.executable, "-m", "qoresence", "--play", "--deck"]
+    cmd = _deck_cmd(qoresence_root)
     print("SPAWN", " ".join(cmd), "cwd=", qoresence_root, file=sys.stderr)
     return subprocess.Popen(cmd, cwd=str(qoresence_root))
 
@@ -60,15 +79,15 @@ def main() -> int:
     args = p.parse_args()
 
     child = None
+    recap_url = args.base.rstrip("/") + "/api/session/recap"
     if args.start_deck:
         root = Path(args.qoresence_root) if args.qoresence_root else Path(r"C:\Users\Contr\Qoresence")
         if not root.is_dir():
             sibling = ROOT.parent / "Qoresence"
             root = sibling if sibling.is_dir() else root
-        child = _spawn_deck(root)
+        child = _spawn_deck(root, recap_url, args.timeout)
 
     out_dir = Path(args.out_dir)
-    recap_url = args.base.rstrip("/") + "/api/session/recap"
     last_key = None
     print("WATCH", recap_url, file=sys.stderr)
 
