@@ -15,7 +15,14 @@ from .record import (
 )
 from .build import build_qoract
 from .reader import record_from_dict
-from .recap_door import issue_from_recap, issue_from_recap_path, recap_door_health
+from .recap_door import (
+    RecapDoorResult,
+    build_from_recap_door,
+    issue_from_recap,
+    issue_from_recap_path,
+    read_recap_door,
+    recap_door_health,
+)
 from .verify import clock_commitment, verify_qoract
 
 __version__ = "0.2.0"
@@ -30,6 +37,9 @@ __all__ = [
     "clock_commitment",
     "verify_qoract",
     "record_from_dict",
+    "RecapDoorResult",
+    "read_recap_door",
+    "build_from_recap_door",
     "issue_from_recap",
     "issue_from_recap_path",
     "recap_door_health",
