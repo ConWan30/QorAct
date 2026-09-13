@@ -14,9 +14,11 @@ from .record import (
     Verdict,
 )
 from .build import build_qoract
+from .reader import record_from_dict
+from .recap_door import issue_from_recap, issue_from_recap_path, recap_door_health
 from .verify import clock_commitment, verify_qoract
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = [
     "MediaKind",
     "MediaSpan",
@@ -27,4 +29,8 @@ __all__ = [
     "build_qoract",
     "clock_commitment",
     "verify_qoract",
+    "record_from_dict",
+    "issue_from_recap",
+    "issue_from_recap_path",
+    "recap_door_health",
 ]
