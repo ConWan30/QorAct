@@ -17,6 +17,6 @@ Rollup: `COMPLETE` | `PARTIAL_SURFACES` | `UNVERIFIABLE`
 
 Preferred door: Recap export → optional Clock Notary (`I am the gamer`) → `build_qoract`. Forbidden signers: bridge, operator, qoresence, qortroller, qoract.
 
-Q-ACT-2 Recap door lifted: `issue_from_recap` / `scripts/issue_from_recap.py`. Fail-open. Clip links do not mint pixels verdicts. Do not import this into the Qoresence grab loop.
+Q-ACT-2 Recap-door reader proposed (`read_recap_door` / `build_from_recap_door`, fail-open). Soft-fails on miss/malformed input; never invents authorship. `issue_from_recap` / `scripts/issue_from_recap.py` remain available. Clip links do not mint pixels verdicts. Do not import this into the Qoresence grab loop. **HOLD until Con lifts merge.**
 
 Q-ACT-3 offline archived Recap HOLD. Q-ACT-4 live bar ask-before-launch. Do not speak QorAct enums on Qoresence Deck/MCP (SEQGATE vocab veto).
