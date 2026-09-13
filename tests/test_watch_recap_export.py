@@ -45,7 +45,15 @@ class _Handler(BaseHTTPRequestHandler):
         return
 
 
-class TestWatchRecap(unittest.TestCase):
+class TestDeckCmd(unittest.TestCase):
+    def test_never_uses_python_dash_m_qoresence(self) -> None:
+        cmd = watch._deck_cmd(ROOT)
+        self.assertIsNotNone(cmd)
+        joined = " ".join(cmd)
+        self.assertNotRegex(joined, r"-m qoresence(?:\s|$)")
+        self.assertIn("--play", cmd)
+        self.assertIn("--deck", cmd)
+
     def test_once_writes_draft(self) -> None:
         httpd = HTTPServer(("127.0.0.1", 0), _Handler)
         port = httpd.server_address[1]
