@@ -38,6 +38,8 @@ Media v0 kinds: `pixels` | `speech`
 7. `live: true` is forbidden on this candidate.
 8. Human HOLD beats every PASS. ConWan30 is sovereign. Do not push `main` without explicit “push”.
 
+Q-ACT-2 Recap-door reader is fail-open; do not merge without Con.
+
 ## Grok Build
 
 ```text
