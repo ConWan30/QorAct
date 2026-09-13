@@ -1,0 +1,24 @@
+{
+  "schema": "session-recap-1",
+  "ok": true,
+  "status": "live",
+  "session": "s",
+  "duration_ms": 1,
+  "event_count": 1,
+  "confirmed_event_count": 1,
+  "linked_clip_count": 1,
+  "incomplete": false,
+  "empty_reason": null,
+  "events": [
+    {
+      "event_id": "e1",
+      "event_type": "situation_shift",
+      "t_start_ns": 1000000,
+      "t_end_ns": 2000000,
+      "qualification": "confirmed",
+      "clip": {"available": true, "clip_id": "hdmi_clip_keep"}
+    }
+  ],
+  "freshness": {"stale": false},
+  "_source": "Qoresence tests/test_session_recap.py test_recap_from_envelope_does_not_reresolve_clips. Clip link is not an initiator."
+}
